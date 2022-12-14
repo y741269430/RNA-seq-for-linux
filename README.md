@@ -140,3 +140,10 @@ https://htseq.readthedocs.io/en/master/count.html#usage
     __too_low_aQual           #低于-a设定的reads mapping质量的reads数
     __not_aligned             #存在于SAM文件，但没有比对上的reads数
     __alignment_not_unique    #比对到多个位置的reads数
+    
+## seqtk提取随机10000条reads  
+    
+    nohup seqtk sample -s100 BL6_6001_1.clean.fq.gz 10000 | gzip > exp_6001_1.clean.fq.gz &
+    nohup seqtk sample -s100 BL6_6001_2.clean.fq.gz 10000 | gzip > exp_6001_2.clean.fq.gz &
+    nohup seqtk sample -s100 BL6_6002_1.clean.fq.gz 10000 | gzip > exp_6002_1.clean.fq.gz &
+    nohup seqtk sample -s100 BL6_6002_2.clean.fq.gz 10000 | gzip > exp_6002_2.clean.fq.gz &
