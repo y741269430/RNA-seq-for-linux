@@ -87,12 +87,10 @@
 
     cat filenames | while read i; 
     do
-
     nohup htseq-count -n 10 \
     -f bam \
     -r name \
     -s no ./bam/${i}-sorted-name.bam ${gtf} > ./rawcounts/${i}.count &
-
     done
 
 ## 6. Remove row      
