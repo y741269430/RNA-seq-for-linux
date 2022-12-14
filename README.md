@@ -93,7 +93,7 @@
     -s no ./bam/${i}-sorted-name.bam ${gtf} > ./rawcounts/${i}.count &
     done
 
-## 6. Remove row      
+## 6. Remove redundant rows     
 
     vim rna4_rmcounts.sh
 
