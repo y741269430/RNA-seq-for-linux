@@ -54,9 +54,9 @@
 
     # single end
     # nohup hisat2 -p 4 \
-    -x ${mm39} \
-    -U ${i}_1.clean.fq.gz \
-    -S ./bam/${i}.sam 2> ./bam/${i}_map.txt &
+    # -x ${mm39} \
+    # -U ${i}_1.clean.fq.gz \
+    # -S ./bam/${i}.sam 2> ./bam/${i}_map.txt &
     
     done
 
@@ -71,8 +71,7 @@
 
     cat filenames | while read i; 
     do
-    nohup samtools view -@ 4 -S ./bam/${i}.sam -b > ./bam/${i}.bam &&
-    samtools sort -@ 4 -n ./bam/${i}.bam -o ./bam/${i}-sorted-name.bam &
+    nohup samtools view -@ 4 -S ./bam/${i}.sam -b | samtools sort -@ 4 -n -o ./bam/${i}-sorted-name.bam &  
 
     done
 
