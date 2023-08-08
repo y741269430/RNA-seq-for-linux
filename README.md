@@ -1,4 +1,4 @@
-# RNA-seq
+# RNA-seq （Linux上游分析，获取rawcounts）
 
 ## 0. Build source used for RNA-seq  
 
