@@ -13,6 +13,7 @@
 ## 0. Build the hisat2 reference genome index (mm39)  
 
 其实hisat2-buld在运行的时候也会自己寻找exons和splice_sites，但是先做的目的是为了提高运行效率  
+先到网上下载：https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/  
     
     mkdir hisat2_idx
     
