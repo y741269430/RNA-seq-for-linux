@@ -147,3 +147,48 @@ https://htseq.readthedocs.io/en/master/count.html#usage
     nohup seqtk sample -s100 BL6_6001_2.clean.fq.gz 10000 | gzip > exp_6001_2.clean.fq.gz &
     nohup seqtk sample -s100 BL6_6002_1.clean.fq.gz 10000 | gzip > exp_6002_1.clean.fq.gz &
     nohup seqtk sample -s100 BL6_6002_2.clean.fq.gz 10000 | gzip > exp_6002_2.clean.fq.gz &
+
+## rnabash.sh ##
+把所有代码合并，一起跑
+
+    vim rnabash.sh
+    #!/bin/bash
+    threads=2
+    
+    mm39="~/downloads/genome/mm39_GRCm39/hisat2_idx/GRCm39"
+    gtf="/home/jjyang/downloads/genome/mm39_GRCm39/gencode.vM27.annotation.gtf"
+    
+    cat filenames | while read i; 
+    do
+        nohup hisat2 -p ${threads} \
+        -x ${mm39} \
+        -1 ./nuohe_raw/${i}_1.fq.gz \
+        -2 ./nuohe_raw/${i}_2.fq.gz \
+        -S ./bam/${i}.sam 2> ./bam/${i}_map.txt & 
+    done
+    
+    wait  
+    
+    cat filenames | while read i; 
+    do
+        nohup samtools view -@ ${threads} -S ./bam/${i}.sam -b | samtools sort -@ 8 -n -o ./bam/${i}-sorted-name.bam &  
+    done
+    
+    wait  
+    
+    cat filenames | while read i; 
+    do
+        nohup htseq-count -n ${threads} \
+        -f bam \
+        -r name \
+        -s no ./bam/${i}-sorted-name.bam ${gtf} > ./rawcounts/${i}.count &
+    done
+    
+    wait  
+    
+    tail -n 5 ./rawcounts/* > ./rawcounts/total.info
+    
+    cat filenames | while read i; 
+    do
+        sed -i '/process/d;/__/d;/retrieve/d' ./rawcounts/${i}.count & 
+    done
