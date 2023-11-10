@@ -148,7 +148,7 @@ https://htseq.readthedocs.io/en/master/count.html#usage
     nohup seqtk sample -s100 BL6_6002_1.clean.fq.gz 10000 | gzip > exp_6002_1.clean.fq.gz &
     nohup seqtk sample -s100 BL6_6002_2.clean.fq.gz 10000 | gzip > exp_6002_2.clean.fq.gz &
 
-## rnabash.sh ##
+## rnabash.sh 报错 ##
 把所有代码合并，一起跑
 
     vim rnabash.sh
