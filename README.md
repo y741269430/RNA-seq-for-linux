@@ -1,6 +1,15 @@
 # RNA-seq （Linux上游分析，获取rawcounts）
+## 目录   
+- -1.构建conda环境用于RNA-seq上游获取count矩阵
+- 0.构建小鼠基因组mm39的index（做一次，以后就不用做了）
+- 1.激活环境并创建文件夹
+- 2.写入样本名到filenames里面，用于批量运行（代码仅供参考）
+- 3.比对到mm39
+- 4.将sam文件转换成bam文件
+- 5.利用htseq-count对bam文件进行定量计算count矩阵     
+- 6.删除一些count矩阵中冗余的行 rows    
 
-## 0. 构建conda环境用于RNA-seq上游获取count矩阵    
+## -1.构建conda环境用于RNA-seq上游获取count矩阵    
 ```
 conda create -n rnaseq python=3.7
 conda activate rnaseq
@@ -11,7 +20,7 @@ conda install -c bioconda samtools
 conda install -c bioconda seqtk
 ```
 
-## 0. 构建小鼠基因组mm39的index（做一次，以后就不用做了）  
+## 0.构建小鼠基因组mm39的index（做一次，以后就不用做了）  
 
 其实hisat2-buld在运行的时候也会自己寻找exons和splice_sites，但是先做的目的是为了提高运行效率  
 先到网上下载小鼠mm39的基因组：https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/  
@@ -29,18 +38,18 @@ nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_splice_sites.py
 nohup hisat2-build -p 60 --ss vM27.splice_sites.gtf --exon vM27.exons.gtf ./ucsc_fa/GRCm39.genome.fa ./hisat2_idx/GRCm39 &
 ```
 
-## 1. 激活环境并创建文件夹   
+## 1.激活环境并创建文件夹   
 ```
 conda activate rnaseq  
 mkdir bam rawcounts
 ```
 
-## 2. 写入样本名到filenames里面，用于批量运行（代码仅供参考）  
+## 2.写入样本名到filenames里面，用于批量运行（代码仅供参考）  
 ```
 ls *1.clean* |cut -d "_" -f 1 > filenames
 ```
 
-## 3. 比对到mm39    
+## 3.比对到mm39    
 写入以下脚本到rna1_hisat2.sh中
 
 ```
@@ -73,7 +82,7 @@ done
 bash rna1_hisat2.sh
 ```
 
-## 4. 将sam文件转换成bam文件   
+## 4.将sam文件转换成bam文件   
 写入以下脚本到rna2_sam2bam.sh中
 
 ```
@@ -95,7 +104,7 @@ done
 bash rna2_sam2bam.sh
 ```
 
-## 5. 利用htseq-count对bam文件进行定量计算count矩阵     
+## 5.利用htseq-count对bam文件进行定量计算count矩阵     
 写入以下脚本到rna3_htcounts.sh中   
 ```
 vim rna3_htcounts.sh
@@ -115,10 +124,10 @@ done
 ```
 运行
 ```
-rna3_htcounts.sh
+bash rna3_htcounts.sh
 ```
 
-## 6. 删除一些count矩阵中冗余的行 rows     
+## 6.删除一些count矩阵中冗余的行 rows     
 写入以下脚本到rna4_rmcounts.sh中   
 ```
 vim rna4_rmcounts.sh
