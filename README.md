@@ -1,113 +1,144 @@
 # RNA-seq （Linux上游分析，获取rawcounts）
 
-## 0. Build source used for RNA-seq  
+## 0. 构建conda环境用于RNA-seq上游获取count矩阵    
+```
+conda create -n rnaseq python=3.7
+conda activate rnaseq
+conda install -c conda-forge aria2
+pip install HTSeq==2.0.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
+conda install -c bioconda hisat2=2.2.1
+conda install -c bioconda samtools
+conda install -c bioconda seqtk
+```
 
-    conda create -n rnaseq python=3.7
-    conda activate rnaseq
-    conda install -c conda-forge aria2
-    pip install HTSeq==2.0.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
-    conda install -c bioconda hisat2=2.2.1
-    conda install -c bioconda samtools
-    conda install -c bioconda seqtk
-    
-## 0. Build the hisat2 reference genome index (mm39)  
+## 0. 构建小鼠基因组mm39的index（做一次，以后就不用做了）  
 
 其实hisat2-buld在运行的时候也会自己寻找exons和splice_sites，但是先做的目的是为了提高运行效率  
-先到网上下载：https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/  
+先到网上下载小鼠mm39的基因组：https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/  
+
+```
+mkdir hisat2_idx
     
-    mkdir hisat2_idx
+cd /home/yangjiajun/downloads/genome/mm39_GRCm39/
+
+# 这一步是提取gtf文件中的外显子和可变剪切的位点(这两个py脚本藏在了conda的目录里面)    
+nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_exons.py gencode.vM27.annotation.gtf > vM27.exons.gtf &
+nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_splice_sites.py gencode.vM27.annotation.gtf > vM27.splice_sites.gtf &
+
+# 建立index（做一次，以后就不用做了）， 必选项是基因组所在文件路径和输出的前缀  
+nohup hisat2-build -p 60 --ss vM27.splice_sites.gtf --exon vM27.exons.gtf ./ucsc_fa/GRCm39.genome.fa ./hisat2_idx/GRCm39 &
+```
+
+## 1. 激活环境并创建文件夹   
+```
+conda activate rnaseq  
+mkdir bam rawcounts
+```
+
+## 2. 写入样本名到filenames里面，用于批量运行（代码仅供参考）  
+```
+ls *1.clean* |cut -d "_" -f 1 > filenames
+```
+
+## 3. 比对到mm39    
+写入以下脚本到rna1_hisat2.sh中
+
+```
+vim rna1_hisat2.sh
+
+#!/bin/bash
+## mapping (hisat2) ##
+
+mm39="/home/yangjiajun/downloads/genome/mm39_GRCm39/hisat2_idx/GRCm39"  # 基因组所在位置
+
+cat filenames | while read i; 
+do
+nohup hisat2 -p 4 \
+-x ${mm39} \
+-1 ${i}_1.clean.fq.gz \
+-2 ${i}_2.clean.fq.gz \
+-S ./bam/${i}.sam 2> ./bam/${i}_map.txt & 
+
+# 以下是单端比对的代码
+# single end
+# nohup hisat2 -p 4 \
+# -x ${mm39} \
+# -U ${i}_1.clean.fq.gz \
+# -S ./bam/${i}.sam 2> ./bam/${i}_map.txt &
     
-    cd /home/yangjiajun/downloads/genome/mm39_GRCm39/
-    
-    nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_exons.py gencode.vM27.annotation.gtf > vM27.exons.gtf &
-    nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_splice_sites.py gencode.vM27.annotation.gtf > vM27.splice_sites.gtf &
+done
+```
+运行
+```
+bash rna1_hisat2.sh
+```
 
-建立index， 必选项是基因组所在文件路径和输出的前缀  
+## 4. 将sam文件转换成bam文件   
+写入以下脚本到rna2_sam2bam.sh中
 
-    nohup hisat2-build -p 60 --ss vM27.splice_sites.gtf --exon vM27.exons.gtf ./ucsc_fa/GRCm39.genome.fa ./hisat2_idx/GRCm39 &
+```
+vim rna2_sam2bam.sh
 
-## 1. Activate the source and create the folder  
-    
-    conda activate rnaseq  
-    
-    mkdir bam rawcounts 
-    
-## 2. Write the filenames  
+#!/bin/bash
+## sam to bam (samtools) ##
+## sorted by read name (samtools) for rowcounts ##
+## sorted by position (samtools) for rmats ##
 
-    ls *1.clean* |cut -d "_" -f 1 > filenames
+cat filenames | while read i; 
+do
+nohup samtools view -@ 4 -S ./bam/${i}.sam -b | samtools sort -@ 4 -n -o ./bam/${i}-sorted-name.bam &  
 
-## 3. Alignment to mm39  
+done
+```
+运行
+```
+bash rna2_sam2bam.sh
+```
 
-    vim rna1_hisat2.sh
+## 5. 利用htseq-count对bam文件进行定量计算count矩阵     
+写入以下脚本到rna3_htcounts.sh中   
+```
+vim rna3_htcounts.sh
 
-    #!/bin/bash
-    ## mapping (hisat2) ##
+#!/bin/bash
+## calculate rawcounts (htseq-count) ##
 
-    mm39="/home/yangjiajun/downloads/genome/mm39_GRCm39/hisat2_idx/GRCm39"
+gtf="/home/yangjiajun/downloads/genome/mm39_GRCm39/gencode.vM27.annotation.gtf"   # gtf所在位置
 
-    cat filenames | while read i; 
-    do
-    nohup hisat2 -p 4 \
-    -x ${mm39} \
-    -1 ${i}_1.clean.fq.gz \
-    -2 ${i}_2.clean.fq.gz \
-    -S ./bam/${i}.sam 2> ./bam/${i}_map.txt & 
+cat filenames | while read i; 
+do
+nohup htseq-count -n 10 \
+-f bam \
+-r name \
+-s no ./bam/${i}-sorted-name.bam ${gtf} > ./rawcounts/${i}.count &
+done
+```
+运行
+```
+rna3_htcounts.sh
+```
 
-    # single end
-    # nohup hisat2 -p 4 \
-    # -x ${mm39} \
-    # -U ${i}_1.clean.fq.gz \
-    # -S ./bam/${i}.sam 2> ./bam/${i}_map.txt &
-    
-    done
+## 6. 删除一些count矩阵中冗余的行 rows     
+写入以下脚本到rna4_rmcounts.sh中   
+```
+vim rna4_rmcounts.sh
 
-## 4. sam to bam    
+#!/bin/bash
+## remove redundant rows ##
 
-    vim rna2_sam2bam.sh
+tail -n 5 ./rawcounts/* > ./rawcounts/total.info
 
-    #!/bin/bash
-    ## sam to bam (samtools) ##
-    ## sorted by read name (samtools) for rowcounts ##
-    ## sorted by position (samtools) for rmats ##
+cat filenames | while read i; 
+do
+sed -i '/process/d;/__/d;/retrieve/d' ./rawcounts/${i}.count & 
+done
+```
+运行
+```
+bash rna4_rmcounts.sh
+```
 
-    cat filenames | while read i; 
-    do
-    nohup samtools view -@ 4 -S ./bam/${i}.sam -b | samtools sort -@ 4 -n -o ./bam/${i}-sorted-name.bam &  
-
-    done
-
-## 5. htseq-count    
-
-    vim rna3_htcounts.sh
-
-    #!/bin/bash
-    ## calculate rawcounts (htseq-count) ##
-
-    gtf="/home/yangjiajun/downloads/genome/mm39_GRCm39/gencode.vM27.annotation.gtf"
-
-    cat filenames | while read i; 
-    do
-    nohup htseq-count -n 10 \
-    -f bam \
-    -r name \
-    -s no ./bam/${i}-sorted-name.bam ${gtf} > ./rawcounts/${i}.count &
-    done
-
-## 6. Remove redundant rows     
-
-    vim rna4_rmcounts.sh
-
-    #!/bin/bash
-    ## remove redundant rows ##
-
-    tail -n 5 ./rawcounts/* > ./rawcounts/total.info
-
-    cat filenames | while read i; 
-    do
-    sed -i '/process/d;/__/d;/retrieve/d' ./rawcounts/${i}.count & 
-    done
-
-## hisat2输出解读  
+## hisat2输出解读（参考）  
 
     21800552 reads; of these:  #一共读取的reads数目，共分三部分
       21800552 (100.00%) were paired; of these:  #第一部分是paired-end模式下比对结果一致的结果
@@ -125,7 +156,7 @@
             48822 (5.47%) aligned >1 times
     98.58% overall alignment rate  #有98.58的匹配率
 
-## rawcounts输出解读  
+## rawcounts输出解读（参考）   
 
 https://htseq.readthedocs.io/en/master/count.html#usage  
 
@@ -148,7 +179,7 @@ https://htseq.readthedocs.io/en/master/count.html#usage
     nohup seqtk sample -s100 BL6_6002_1.clean.fq.gz 10000 | gzip > exp_6002_1.clean.fq.gz &
     nohup seqtk sample -s100 BL6_6002_2.clean.fq.gz 10000 | gzip > exp_6002_2.clean.fq.gz &
 
-## rnabash.sh 报错 ##
+## rnabash.sh 这里报错了，未来再修复吧 ##
 把所有代码合并，一起跑
 
     vim rnabash.sh
