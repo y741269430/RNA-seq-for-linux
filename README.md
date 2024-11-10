@@ -148,6 +148,7 @@ bash rna4_rmcounts.sh
 ```
 
 ## hisat2输出解读（参考）  
+- [RNAseq---Hisat2 标准输出中比对率信息解读](https://blog.csdn.net/cfc424/article/details/121666525)    
 
     21800552 reads; of these:  #一共读取的reads数目，共分三部分
       21800552 (100.00%) were paired; of these:  #第一部分是paired-end模式下比对结果一致的结果
