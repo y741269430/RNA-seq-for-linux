@@ -10,6 +10,7 @@
 - 6.删除一些count矩阵中冗余的行 rows    
 
 ## -1.构建conda环境用于RNA-seq上游获取count矩阵    
+- [RNA-seq(5):序列比对：Hisat2](https://www.jianshu.com/p/479c7b576e6f)    
 ```
 conda create -n rnaseq python=3.7
 conda activate rnaseq
