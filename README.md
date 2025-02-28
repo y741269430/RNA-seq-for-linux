@@ -21,6 +21,14 @@ conda install -c bioconda samtools
 conda install -c bioconda seqtk
 ```
 
+## -1.1. 使用本人部署的环境进行安装    
+
+```
+# conda env export > environment.yml
+conda env create -f environment.yml
+```
+
+
 ## 0.构建小鼠基因组mm39的index（做一次，以后就不用做了）  
 
 其实hisat2-buld在运行的时候也会自己寻找exons和splice_sites，但是先做的目的是为了提高运行效率  
