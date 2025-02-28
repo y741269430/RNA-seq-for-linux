@@ -22,7 +22,7 @@ conda install -c bioconda seqtk
 ```
 
 ## -1.1. 使用本人部署的环境进行安装    
-
+- [environment.yml文件下载](https://github.com/y741269430/RNA-seq-for-linux/blob/main/environment.yml)
 ```
 # conda env export > environment.yml
 conda env create -f environment.yml
