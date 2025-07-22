@@ -67,21 +67,21 @@ vim rna1_hisat2.sh
 #!/bin/bash
 ## mapping (hisat2) ##
 
-mm39="/home/yangjiajun/downloads/genome/mm39_GRCm39/hisat2_idx/GRCm39"  # 基因组所在位置
+mm39="/home/jjyang/downloads/genome/mm39_GRCm39/hisat2_idx/GRCm39"  # 基因组所在位置
 
 cat filenames | while read i; 
 do
 nohup hisat2 -p 4 \
 -x ${mm39} \
--1 ${i}_1.clean.fq.gz \
--2 ${i}_2.clean.fq.gz \
+-1 ${i}_1.fq.gz \
+-2 ${i}_2.fq.gz \
 -S ./bam/${i}.sam 2> ./bam/${i}_map.txt & 
 
 # 以下是单端比对的代码
 # single end
 # nohup hisat2 -p 4 \
 # -x ${mm39} \
-# -U ${i}_1.clean.fq.gz \
+# -U ${i}_1.fq.gz \
 # -S ./bam/${i}.sam 2> ./bam/${i}_map.txt &
     
 done
@@ -121,7 +121,7 @@ vim rna3_htcounts.sh
 #!/bin/bash
 ## calculate rawcounts (htseq-count) ##
 
-gtf="/home/yangjiajun/downloads/genome/mm39_GRCm39/gencode.vM27.annotation.gtf"   # gtf所在位置
+gtf="/home/jjyang/downloads/genome/mm39_GRCm39/gencode.vM27.annotation.gtf"   # gtf所在位置
 
 cat filenames | while read i; 
 do
