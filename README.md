@@ -157,23 +157,23 @@ bash rna4_rmcounts.sh
 ```
 
 ## hisat2输出解读（参考）  
-- [RNAseq---Hisat2 标准输出中比对率信息解读](https://blog.csdn.net/cfc424/article/details/121666525)    
+- [RNAseq---Hisat2 标准输出中比对率信息解读](https://blog.csdn.net/cfc424/article/details/121666525)      
 
-    21800552 reads; of these:  #一共读取的reads数目，共分三部分
-      21800552 (100.00%) were paired; of these:  #第一部分是paired-end模式下比对结果一致的结果
-        692176 (3.18%) aligned concordantly 0 times  #在比对一致的结果中，不太合理的比对。即read1和read2都能比对上但是不合理（方向不对或者片段长度不对）
-        20143802 (92.40%) aligned concordantly exactly 1 time   #在这些比对一致结果中，合理的比对中有92.4是reads只匹配到一处
-        964574 (4.42%) aligned concordantly >1 times  #在这些比对的结果中，合理的比对中，有4.42reads匹配到了多处
+    21800552 reads; of these:  #一共读取的reads数目，共分三部分    
+      21800552 (100.00%) were paired; of these:  #第一部分是paired-end模式下比对结果一致的结果    
+        692176 (3.18%) aligned concordantly 0 times  #在比对一致的结果中，不太合理的比对。即read1和read2都能比对上但是不合理（方向不对或者片段长度不对）    
+        20143802 (92.40%) aligned concordantly exactly 1 time   #在这些比对一致结果中，合理的比对中有92.4是reads只匹配到一处    
+        964574 (4.42%) aligned concordantly >1 times  #在这些比对的结果中，合理的比对中，有4.42reads匹配到了多处    
+        ----    
+        692176 pairs aligned concordantly 0 times; of these:  #paired-end 模式下比对不合理的比对        
+          245626 (35.49%) aligned discordantly 1 time    
         ----
-        692176 pairs aligned concordantly 0 times; of these:  #paired-end 模式下比对不合理的比对
-          245626 (35.49%) aligned discordantly 1 time
-        ----
-        446550 pairs aligned 0 times concordantly or discordantly; of these: # 剩余的reads
-          893100 mates make up the pairs; of these:
-            620889 (69.52%) aligned 0 times
-            223389 (25.01%) aligned exactly 1 time
-            48822 (5.47%) aligned >1 times
-    98.58% overall alignment rate  #有98.58的匹配率
+        446550 pairs aligned 0 times concordantly or discordantly; of these: # 剩余的reads    
+          893100 mates make up the pairs; of these:           
+            620889 (69.52%) aligned 0 times        
+            223389 (25.01%) aligned exactly 1 time        
+            48822 (5.47%) aligned >1 times        
+    98.58% overall alignment rate  #有98.58的匹配率        
 
 ## rawcounts输出解读（参考）   
 
