@@ -50,7 +50,7 @@ nohup hisat2-build -p 60 --ss vM27.splice_sites.gtf --exon vM27.exons.gtf ./ucsc
 ## 1.激活环境并创建文件夹   
 ```
 conda activate rnaseq  
-mkdir bam rawcounts
+mkdir bam rawcounts mapinfo
 ```
 
 ## 2.写入样本名到filenames里面，用于批量运行（代码仅供参考）  
@@ -75,14 +75,14 @@ nohup hisat2 -p 4 \
 -x ${mm39} \
 -1 ${i}_1.fq.gz \
 -2 ${i}_2.fq.gz \
--S ./bam/${i}.sam 2> ./bam/${i}_map.txt & 
+-S ./bam/${i}.sam 2> ./mapinfo/${i}_map.txt & 
 
 # 以下是单端比对的代码
 # single end
 # nohup hisat2 -p 4 \
 # -x ${mm39} \
 # -U ${i}_1.fq.gz \
-# -S ./bam/${i}.sam 2> ./bam/${i}_map.txt &
+# -S ./bam/${i}.sam 2> ./mapinfo/${i}_map.txt &
     
 done
 ```
