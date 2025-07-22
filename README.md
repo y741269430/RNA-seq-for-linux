@@ -11,7 +11,7 @@
 
 ## -1.构建conda环境用于RNA-seq上游获取count矩阵    
 - [RNA-seq(5):序列比对：Hisat2](https://www.jianshu.com/p/479c7b576e6f)    
-```
+```bash
 conda create -n rnaseq python=3.7
 conda activate rnaseq
 conda install -c conda-forge aria2
@@ -23,7 +23,7 @@ conda install -c bioconda seqtk
 
 ## -1.1. 使用本人部署的环境进行安装    
 - [environment.yml文件下载](https://github.com/y741269430/RNA-seq-for-linux/blob/main/environment.yml)
-```
+```bash
 # conda env export > environment.yml
 conda env create -f environment.yml
 ```
@@ -34,7 +34,7 @@ conda env create -f environment.yml
 其实hisat2-buld在运行的时候也会自己寻找exons和splice_sites，但是先做的目的是为了提高运行效率  
 先到网上下载小鼠mm39的基因组：https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/  
 
-```
+```bash
 mkdir hisat2_idx
     
 cd /home/yangjiajun/downloads/genome/mm39_GRCm39/
@@ -47,23 +47,27 @@ nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_splice_sites.py
 nohup hisat2-build -p 60 --ss vM27.splice_sites.gtf --exon vM27.exons.gtf ./ucsc_fa/GRCm39.genome.fa ./hisat2_idx/GRCm39 &
 ```
 
-## 1.激活环境并创建文件夹   
+## 1.激活环境  
+```bash
+conda activate rnaseq
 ```
-conda activate rnaseq  
+创建文件夹，bam用于存放sam和bam文件，mapinfo用于存放比对率结果，rawcounts用于存放最终结果     
+```bash
 mkdir bam rawcounts mapinfo
 ```
 
 ## 2.写入样本名到filenames里面，用于批量运行（代码仅供参考）  
-```
+```bash
 ls *1.clean* |cut -d "_" -f 1 > filenames
 ```
 
 ## 3.比对到mm39    
 写入以下脚本到rna1_hisat2.sh中
 
-```
+```bash
 vim rna1_hisat2.sh
-
+```
+```bash
 #!/bin/bash
 ## mapping (hisat2) ##
 
@@ -87,16 +91,17 @@ nohup hisat2 -p 4 \
 done
 ```
 运行
-```
+```bash
 bash rna1_hisat2.sh
 ```
 
 ## 4.将sam文件转换成bam文件   
 写入以下脚本到rna2_sam2bam.sh中
 
-```
+```bash
 vim rna2_sam2bam.sh
-
+```
+```bash
 #!/bin/bash
 ## sam to bam (samtools) ##
 ## sorted by read name (samtools) for rowcounts ##
@@ -109,15 +114,16 @@ nohup samtools view -@ 4 -S ./bam/${i}.sam -b | samtools sort -@ 4 -n -o ./bam/$
 done
 ```
 运行
-```
+```bash
 bash rna2_sam2bam.sh
 ```
 
 ## 5.利用htseq-count对bam文件进行定量计算count矩阵     
 写入以下脚本到rna3_htcounts.sh中   
-```
+```bash
 vim rna3_htcounts.sh
-
+```
+```bash
 #!/bin/bash
 ## calculate rawcounts (htseq-count) ##
 
@@ -132,15 +138,16 @@ nohup htseq-count -n 10 \
 done
 ```
 运行
-```
+```bash
 bash rna3_htcounts.sh
 ```
 
 ## 6.删除一些count矩阵中冗余的行 rows     
 写入以下脚本到rna4_rmcounts.sh中   
-```
+```bash
 vim rna4_rmcounts.sh
-
+```
+```bash
 #!/bin/bash
 ## remove redundant rows ##
 
@@ -152,7 +159,7 @@ sed -i '/process/d;/__/d;/retrieve/d' ./rawcounts/${i}.count &
 done
 ```
 运行
-```
+```bash
 bash rna4_rmcounts.sh
 ```
 
@@ -192,9 +199,9 @@ https://htseq.readthedocs.io/en/master/count.html#usage
     __alignment_not_unique    #比对到多个位置的reads数
     
 ## seqtk提取随机10000条reads  
-    
-    nohup seqtk sample -s100 BL6_6001_1.clean.fq.gz 10000 | gzip > exp_6001_1.clean.fq.gz &
-    nohup seqtk sample -s100 BL6_6001_2.clean.fq.gz 10000 | gzip > exp_6001_2.clean.fq.gz &
-    nohup seqtk sample -s100 BL6_6002_1.clean.fq.gz 10000 | gzip > exp_6002_1.clean.fq.gz &
-    nohup seqtk sample -s100 BL6_6002_2.clean.fq.gz 10000 | gzip > exp_6002_2.clean.fq.gz &
-
+```bash
+nohup seqtk sample -s100 BL6_6001_1.clean.fq.gz 10000 | gzip > exp_6001_1.clean.fq.gz &
+nohup seqtk sample -s100 BL6_6001_2.clean.fq.gz 10000 | gzip > exp_6001_2.clean.fq.gz &
+nohup seqtk sample -s100 BL6_6002_1.clean.fq.gz 10000 | gzip > exp_6002_1.clean.fq.gz &
+nohup seqtk sample -s100 BL6_6002_2.clean.fq.gz 10000 | gzip > exp_6002_2.clean.fq.gz &
+```
