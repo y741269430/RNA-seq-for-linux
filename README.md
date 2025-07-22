@@ -163,7 +163,12 @@ done
 bash rna4_rmcounts.sh
 ```
 
-## hisat2输出解读（参考）  
+## hisat2输出解读（参考）    
+输出比对率文件
+```bash
+python info_MappingRate.py mapinfo/ alignment_res.csv
+```
+
 - [RNAseq---Hisat2 标准输出中比对率信息解读](https://blog.csdn.net/cfc424/article/details/121666525)      
 
 >    21800552 reads; of these:  #一共读取的reads数目，共分三部分     
