@@ -163,10 +163,11 @@ done
 bash rna4_rmcounts.sh
 ```
 
-## hisat2输出解读（参考）    
+## hisat2/bowtie2 整合输出比对率         
 输出比对率文件
 ```bash
-python info_MappingRate.py mapinfo/ alignment_res.csv
+conda activate rnaseq
+python MappingRateOutput.py mapinfo/ alignment_res
 ```
 
 - [RNAseq---Hisat2 标准输出中比对率信息解读](https://blog.csdn.net/cfc424/article/details/121666525)      
