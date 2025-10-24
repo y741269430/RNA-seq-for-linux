@@ -32,7 +32,7 @@ conda env create -f environment.yml
 ## 0.构建小鼠基因组mm39的index（做一次，以后就不用做了）  
 
 其实hisat2-buld在运行的时候也会自己寻找exons和splice_sites，但是先做的目的是为了提高运行效率  
-先到网上下载小鼠mm39的基因组：https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/  
+先到网上下载小鼠mm39的基因组：ftp://ftp.ensembl.org/pub/release-112/fasta/mus_musculus/dna/
 
 ```bash
 cd downloads/genome/mm_v112
