@@ -35,16 +35,15 @@ conda env create -f environment.yml
 先到网上下载小鼠mm39的基因组：https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M27/  
 
 ```bash
+cd downloads/genome/mm_v112
 mkdir hisat2_idx
-    
-cd /home/yangjiajun/downloads/genome/mm39_GRCm39/
 
 # 这一步是提取gtf文件中的外显子和可变剪切的位点(这两个py脚本藏在了conda的目录里面)    
-nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_exons.py gencode.vM27.annotation.gtf > vM27.exons.gtf &
-nohup /home/yangjiajun/miniconda3/envs/rnaseq/bin/hisat2_extract_splice_sites.py gencode.vM27.annotation.gtf > vM27.splice_sites.gtf &
+nohup ~/.conda/envs/rnaseq/bin/hisat2_extract_exons.py Mus_musculus.GRCm39.112.chr.gtf > v112.exons.gtf &
+nohup ~/.conda/envs/rnaseq/bin/hisat2_extract_splice_sites.py Mus_musculus.GRCm39.112.chr.gtf > v112.splice_sites.gtf &
 
 # 建立index（做一次，以后就不用做了）， 必选项是基因组所在文件路径和输出的前缀  
-nohup hisat2-build -p 60 --ss vM27.splice_sites.gtf --exon vM27.exons.gtf ./ucsc_fa/GRCm39.genome.fa ./hisat2_idx/GRCm39 &
+nohup hisat2-build -p 60 --ss v112.splice_sites.gtf --exon v112.exons.gtf Mus_musculus.GRCm39.dna_sm.chromosome.chr.fa ./hisat2_idx/GRCm39 &
 ```
 
 ## 1.激活环境  
@@ -71,7 +70,7 @@ vim rna1_hisat2.sh
 #!/bin/bash
 ## mapping (hisat2) ##
 
-mm39="/home/jjyang/downloads/genome/mm39_GRCm39/hisat2_idx/GRCm39"  # 基因组所在位置
+mm39="/home/jjyang/downloads/genome/mm_v112/hisat2_idx/GRCm39"  # 基因组所在位置
 
 cat filenames | while read i; 
 do
