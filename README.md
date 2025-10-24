@@ -76,9 +76,9 @@ cat filenames | while read i;
 do
 nohup hisat2 -p 4 \
 -x ${mm39} \
--1 ${i}_1.fq.gz \
--2 ${i}_2.fq.gz \
--S ./bam/${i}.sam 2> ./mapinfo/${i}_map.txt & 
+-1 ./fastq/${i}.R1.fq.gz \
+-2 ./fastq/${i}.R2.fq.gz \
+-S ./bam/${i}.sam 2> ./mapinfo/${i}_map.txt &
 
 # 以下是单端比对的代码
 # single end
