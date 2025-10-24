@@ -7,7 +7,8 @@
 - 3.比对到mm39
 - 4.将sam文件转换成bam文件
 - 5.利用htseq-count对bam文件进行定量计算count矩阵     
-- 6.删除一些count矩阵中冗余的行 rows    
+- 6.删除一些count矩阵中冗余的行 rows
+- 7.合并counts文件      
 
 ## -1.构建conda环境用于RNA-seq上游获取count矩阵    
 - [RNA-seq(5):序列比对：Hisat2](https://www.jianshu.com/p/479c7b576e6f)    
@@ -202,11 +203,26 @@ https://htseq.readthedocs.io/en/master/count.html#usage
     __too_low_aQual           #低于-a设定的reads mapping质量的reads数
     __not_aligned             #存在于SAM文件，但没有比对上的reads数
     __alignment_not_unique    #比对到多个位置的reads数
-    
-## seqtk提取随机10000条reads  
-```bash
-nohup seqtk sample -s100 BL6_6001_1.clean.fq.gz 10000 | gzip > exp_6001_1.clean.fq.gz &
-nohup seqtk sample -s100 BL6_6001_2.clean.fq.gz 10000 | gzip > exp_6001_2.clean.fq.gz &
-nohup seqtk sample -s100 BL6_6002_1.clean.fq.gz 10000 | gzip > exp_6002_1.clean.fq.gz &
-nohup seqtk sample -s100 BL6_6002_2.clean.fq.gz 10000 | gzip > exp_6002_2.clean.fq.gz &
+
+## 7.合并counts文件     
+```r
+path <- "/Users/mac/Downloads/rawcounts/"
+fileNames <- dir(path, pattern = ".count$") 
+filePath <- sapply(fileNames, function(x){ 
+  paste(path,x,sep='/')})   
+data <- lapply(filePath, function(x){
+  read.table(x, header = F, sep = "\t")})
+
+gene_id <- data[[1]][,1]
+
+rawdata <- Reduce(cbind, lapply(data, function(x){x <- x[,2]}))
+colnames(rawdata) <- names(data)
+
+rawdata <- cbind(gene_id, rawdata)
+
+colnames(rawdata)[-1] <- c(paste0('Ctrl_', 1:3), 
+                           paste0('Treatment_', 1:3))
+
+write.csv(rawdata, '/Users/mac/Downloads/gene_count_matrix.csv', row.names = F)
+write.table(rawdata, '/Users/mac/Downloads/gene_count_matrix.txt', row.names = F, quote = F, sep = '\t')
 ```
