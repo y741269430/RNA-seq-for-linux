@@ -126,7 +126,7 @@ vim rna3_htcounts.sh
 #!/bin/bash
 ## calculate rawcounts (htseq-count) ##
 
-gtf="/home/jjyang/downloads/genome/mm39_GRCm39/gencode.vM27.annotation.gtf"   # gtf所在位置
+gtf="/home/jjyang/downloads/genome/mm_v112/Mus_musculus.GRCm39.112.chr.gtf"   # gtf所在位置
 
 cat filenames | while read i; 
 do
