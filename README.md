@@ -1,15 +1,4 @@
 # RNA-seq （Linux上游分析，获取rawcounts）
-## 目录   
-- -1.构建conda环境用于RNA-seq上游获取count矩阵
-- 0.构建小鼠基因组mm39的index（做一次，以后就不用做了）
-- 1.激活环境并创建文件夹
-- 2.写入样本名到filenames里面，用于批量运行（代码仅供参考）
-- 3.比对到mm39
-- 4.将sam文件转换成bam文件
-- 5.利用htseq-count对bam文件进行定量计算count矩阵     
-- 6.删除一些count矩阵中冗余的行 rows
-- 7.合并counts文件      
-- 8.差异表达分析
 
 ## -1.构建conda环境用于RNA-seq上游获取count矩阵    
 - [RNA-seq(5):序列比对：Hisat2](https://www.jianshu.com/p/479c7b576e6f)    
