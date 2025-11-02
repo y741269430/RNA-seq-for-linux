@@ -206,6 +206,8 @@ https://htseq.readthedocs.io/en/master/count.html#usage
 
 ## 7.合并counts文件     
 ```r
+source('RNAseq_Flow.R')
+
 path <- "/Users/mac/Downloads/rawcounts/"
 fileNames <- dir(path, pattern = ".count$") 
 filePath <- sapply(fileNames, function(x){ 
@@ -231,4 +233,40 @@ anno <- read.delim('rmdup_20251102.txt')
 anno_data <- merge(anno, rawdata, 'gene_id')
 
 write.csv(anno_data, '/Users/mac/Downloads/anno_data.csv', row.names = F)
+
+#### 读取 rawdata 矩阵 ####
+rawdata <- read.delim('gene_count_matrix.txt', row.names = 1)
+
+matrix <- rawdata[,-1]
+rownames(matrix) <- rawdata$gene_id
+
+#### 绘制PCA图 ####
+nor <- myNormal(matrix, myGrouplist(matrix))
+plot_pca <- myPCA(nor, myGrouplist(nor))
+print(plot_pca)
+
+#### 使用DESeq2进行差异表达分析 ####
+deseq2_res <- myDESeq2(matrix, 3, 3)
+write.xlsx(deseq2_res, 'deseq2_res.xlsx')
+
+#### 提取差异表达基因list ####
+deg <- subset(deseq2_res, c(pvalue < 0.05 & abs(log2FC)>=0.585) )
+deg <- deg[order(deg$log2FC, decreasing = T), ]
+write.xlsx(deg, 'deg_data.xlsx')
+
+#### 绘制火山图 ####
+plot_vol <- myVol(deseq2_res)
+print(plot_vol)
+
+#### 绘制差异表达基因前50个上调基因与下调基因热图 ####
+heat_data <- rbind(head(deg, 50), tail(deg, 50))
+rownames(heat_data) <- heat_data$gene_name
+heat_data <- heat_data[,-c(1:9)]
+plot_heat <- myHeat(heat_data, myGrouplist(heat_data), show_rownames = T)
+print(plot_heat)
+
+####保存图片 ####
+ggsave(plot = plot_pca, 'plot_pca.pdf', height = 5, width = 5, dpi = 300)
+ggsave(plot = plot_vol, 'plot_vol.pdf', height = 8, width = 8, dpi = 300)
+ggsave(plot = plot_heat, 'plot_heat.pdf', height = 8, width = 5, dpi = 300)
 ```
