@@ -1,43 +1,6 @@
 # RNA-seq （Linux上游分析，获取rawcounts）
-
-## -1.构建conda环境用于RNA-seq上游获取count矩阵    
-- [RNA-seq(5):序列比对：Hisat2](https://www.jianshu.com/p/479c7b576e6f)    
-```bash
-conda create -n rnaseq python=3.7
-conda activate rnaseq
-conda install -c conda-forge aria2
-pip install HTSeq==2.0.0 -i https://pypi.tuna.tsinghua.edu.cn/simple
-conda install -c bioconda hisat2=2.2.1
-conda install -c bioconda samtools
-conda install -c bioconda seqtk
-```
-
-## -1.1. 使用本人部署的环境进行安装    
-- [environment.yml文件下载](https://github.com/y741269430/RNA-seq-for-linux/blob/main/environment.yml)
-```bash
-# conda env export > environment.yml
-conda env create -f environment.yml
-```
-
-
-## 0.构建小鼠基因组mm39的index（做一次，以后就不用做了）  
-
-其实hisat2-buld在运行的时候也会自己寻找exons和splice_sites，但是先做的目的是为了提高运行效率  
-先到网上下载小鼠mm39的基因组：ftp://ftp.ensembl.org/pub/release-112/fasta/mus_musculus/dna/
-
-```bash
-cd downloads/genome/mm_v112
-mkdir hisat2_idx
-
-# 这一步是提取gtf文件中的外显子和可变剪切的位点(这两个py脚本藏在了conda的目录里面)    
-nohup ~/.conda/envs/rnaseq/bin/hisat2_extract_exons.py Mus_musculus.GRCm39.112.chr.gtf > v112.exons.gtf &
-nohup ~/.conda/envs/rnaseq/bin/hisat2_extract_splice_sites.py Mus_musculus.GRCm39.112.chr.gtf > v112.splice_sites.gtf &
-
-# 建立index（做一次，以后就不用做了）， 必选项是基因组所在文件路径和输出的前缀  
-nohup hisat2-build -p 60 --ss v112.splice_sites.gtf --exon v112.exons.gtf Mus_musculus.GRCm39.dna_sm.chromosome.chr.fa ./hisat2_idx/GRCm39 &
-```
-
-## 1.激活环境  
+## 1.激活环境     
+环境以及基因组索引是由以下链接构建的：[构建RNA-seq分析所需环境以及索引](https://github.com/y741269430/RNA-seq-for-linux/blob/main/%E6%9E%84%E5%BB%BARNA-seq%E5%88%86%E6%9E%90%E6%89%80%E9%9C%80%E7%8E%AF%E5%A2%83%E4%BB%A5%E5%8F%8A%E7%B4%A2%E5%BC%95.md)
 ```bash
 conda activate rnaseq
 ```
