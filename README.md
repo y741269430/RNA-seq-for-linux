@@ -9,6 +9,7 @@
 - 5.利用htseq-count对bam文件进行定量计算count矩阵     
 - 6.删除一些count矩阵中冗余的行 rows
 - 7.合并counts文件      
+- 8.差异表达分析
 
 ## -1.构建conda环境用于RNA-seq上游获取count矩阵    
 - [RNA-seq(5):序列比对：Hisat2](https://www.jianshu.com/p/479c7b576e6f)    
@@ -204,6 +205,9 @@ https://htseq.readthedocs.io/en/master/count.html#usage
     __not_aligned             #存在于SAM文件，但没有比对上的reads数
     __alignment_not_unique    #比对到多个位置的reads数
 
+---
+以下内容可以本地分析      
+ 
 ## 7.合并counts文件     
 ```r
 source('RNAseq_Flow.R')
@@ -231,9 +235,10 @@ write.table(rawdata, '/Users/mac/Downloads/gene_count_matrix.txt', row.names = F
 #### 添加annotation ####
 anno <- read.delim('rmdup_20251102.txt')
 anno_data <- merge(anno, rawdata, 'gene_id')
-
 write.csv(anno_data, '/Users/mac/Downloads/anno_data.csv', row.names = F)
-
+```
+## 8.差异表达分析     
+```r
 #### 读取 rawdata 矩阵 ####
 rawdata <- read.delim('gene_count_matrix.txt', row.names = 1)
 
@@ -265,8 +270,11 @@ heat_data <- heat_data[,-c(1:9)]
 plot_heat <- myHeat(heat_data, myGrouplist(heat_data), show_rownames = T)
 print(plot_heat)
 
-####保存图片 ####
+#### 保存图片 ####
 ggsave(plot = plot_pca, 'plot_pca.pdf', height = 5, width = 5, dpi = 300)
 ggsave(plot = plot_vol, 'plot_vol.pdf', height = 8, width = 8, dpi = 300)
 ggsave(plot = plot_heat, 'plot_heat.pdf', height = 8, width = 5, dpi = 300)
+
+#### 富集分析 ####
+待定
 ```
