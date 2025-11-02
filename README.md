@@ -225,4 +225,10 @@ colnames(rawdata)[-1] <- c(paste0('Ctrl_', 1:3),
 
 write.csv(rawdata, '/Users/mac/Downloads/gene_count_matrix.csv', row.names = F)
 write.table(rawdata, '/Users/mac/Downloads/gene_count_matrix.txt', row.names = F, quote = F, sep = '\t')
+
+#### 添加annotation ####
+anno <- read.delim('rmdup_20251102.txt')
+anno_data <- merge(anno, rawdata, 'gene_id')
+
+write.csv(anno_data, '/Users/mac/Downloads/anno_data.csv', row.names = F)
 ```
