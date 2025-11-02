@@ -274,7 +274,45 @@ print(plot_heat)
 ggsave(plot = plot_pca, 'plot_pca.pdf', height = 5, width = 5, dpi = 300)
 ggsave(plot = plot_vol, 'plot_vol.pdf', height = 8, width = 8, dpi = 300)
 ggsave(plot = plot_heat, 'plot_heat.pdf', height = 8, width = 5, dpi = 300)
-
+```
+## 9.富集分析    
+```r
 #### 富集分析 ####
-待定
+source('RNAseq_Flow.R')
+
+# 读取全部基因list
+deseq2_res <- read.xlsx('deseq2_res.xlsx')
+
+# 构建背景基因集
+deseq2_res_entrezid <- bitr(deseq2_res$gene_id, fromType = 'ENSEMBL', toType = 'ENTREZID', OrgDb = 'org.Mm.eg.db', drop = TRUE)
+
+# 读取差异基因list
+deg <- read.xlsx('deg_data.xlsx')
+
+deg_entrezid <- bitr(deg$gene_id, fromType = 'ENSEMBL', toType = 'ENTREZID', OrgDb = 'org.Mm.eg.db', drop = TRUE)
+
+colnames(deg_entrezid)[1] <- 'gene_id'
+
+deg_entrezid <- left_join(deg_entrezid, deg, 'gene_id')
+
+deg2 <- list('Up_deg' = deg_entrezid[deg_entrezid$log2FC > 0, ], 
+             'Down_deg' = deg_entrezid[deg_entrezid$log2FC < 0, ])
+
+rna <- lapply(deg2, function(x){ x <- x$ENTREZID })
+
+# GO KEGG 富集分析
+BP <- clusterProfiler::compareCluster(rna, fun = "enrichGO", ont = "BP", 
+                                      OrgDb = 'org.Mm.eg.db', keyType = 'ENTREZID', 
+                                      universe = deseq2_res_entrezid$ENTREZID, readable = T)
+CC <- clusterProfiler::compareCluster(rna, fun = "enrichGO", ont = "CC",
+                                      OrgDb = 'org.Mm.eg.db', keyType = 'ENTREZID', 
+                                      universe = deseq2_res_entrezid$ENTREZID, readable = T)
+MF <- clusterProfiler::compareCluster(rna, fun = "enrichGO", ont = "MF",
+                                      OrgDb = 'org.Mm.eg.db', keyType = 'ENTREZID', 
+                                      universe = deseq2_res_entrezid$ENTREZID, readable = T)
+
+kegg <- setReadable(clusterProfiler::compareCluster(rna, fun = "my_enrichKEGG", organism = "mmu", 
+                                                    universe = deseq2_res_entrezid$ENTREZID), 'org.Mm.eg.db', 'ENTREZID')
+
+save(deg2, rna, BP, CC, MF, kegg, file = 'deg_GO_KEGG.RData')
 ```
