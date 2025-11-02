@@ -165,4 +165,34 @@ myHeat <- function(x, grouplist, show_rownames = F,
                              silent = T) 
   plot_grid(plot$gtable)
 }
+my_enrichKEGG <- function(gene, organism = "mmu", keyType = "kegg", pvalueCutoff = 0.05, 
+                          pAdjustMethod = "BH", universe, minGSSize = 10, maxGSSize = 500, 
+                          qvalueCutoff = 0.2, use_internal_data = FALSE) {
+  species <- clusterProfiler:::organismMapper(organism)
+  if (use_internal_data) {KEGG_DATA <- clusterProfiler:::get_data_from_KEGG_db(species)}
+  else {
+    astk_dir <- file.path("./")
+    kegg_data_name <- paste(organism, lubridate::today(),"kegg","RData", sep = ".")
+    kegg_data_path <- file.path(astk_dir, kegg_data_name)
+    if (file.exists(kegg_data_path)){
+      print("load local catch")
+      load(kegg_data_path)
+    }else {
+      print("online downloading... ")
+      KEGG_DATA <- clusterProfiler:::prepare_KEGG(organism,"KEGG", "kegg")
+      save(KEGG_DATA, file = kegg_data_path) 
+    }; print(KEGG_DATA)
+    
+  }
+  
+  res <- clusterProfiler:::enricher_internal(gene, pvalueCutoff = pvalueCutoff, 
+                                             pAdjustMethod = pAdjustMethod, universe = universe, minGSSize = minGSSize, 
+                                             maxGSSize = maxGSSize, qvalueCutoff = qvalueCutoff, USER_DATA = KEGG_DATA)
+  if (is.null(res)) 
+    return(res)
+  res@ontology <- "KEGG"
+  res@organism <- species
+  res@keytype <- keyType
+  return(res)
+}
 localgeneid <- read.delim('rmdup_20251102.txt')
