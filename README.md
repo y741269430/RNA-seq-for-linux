@@ -1,4 +1,5 @@
-# RNA-seq （Linux上游分析，获取rawcounts）
+# RNA-seq
+步骤1-6为服务器端的上游分析，获取rawcounts，7-8为本地的下游分析，包括差异表达分析，富集分析等。
 ## 1.激活环境     
 环境以及基因组索引是由以下链接构建的：[构建RNA-seq分析所需环境以及索引](https://github.com/y741269430/RNA-seq-for-linux/blob/main/%E6%9E%84%E5%BB%BARNA-seq%E5%88%86%E6%9E%90%E6%89%80%E9%9C%80%E7%8E%AF%E5%A2%83%E4%BB%A5%E5%8F%8A%E7%B4%A2%E5%BC%95.md)
 ```bash
