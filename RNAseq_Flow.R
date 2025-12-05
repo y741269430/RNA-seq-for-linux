@@ -57,8 +57,10 @@ myDESeq2 <- function(x, ct, tr, id = 'gene_id'){
   dds <- DESeq2::DESeqDataSetFromMatrix(countData = x,
                                         colData = colData,
                                         design = ~condition)
-  # keep <- rowSums(DESeq2::counts(dds)) >= 100
-  # dds <- dds[keep,]
+  
+  # 过滤低表达基因（至少5个样本中计数>10）
+  keep <- rowSums(counts(dds) >= 10) >= 5
+  dds <- dds[keep, ]
   
   dds <- DESeq2::DESeq(dds)    
   nor <- DESeq2::counts(dds, normalized = T)
@@ -196,3 +198,4 @@ my_enrichKEGG <- function(gene, organism = "mmu", keyType = "kegg", pvalueCutoff
   return(res)
 }
 localgeneid <- read.delim('rmdup_20251102.txt')
+
